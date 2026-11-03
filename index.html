@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>뉴스픽 황금유입 PRO</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f4f6fb;color:#263248;font-family:Arial,sans-serif}
+header{background:#242b46;color:white;padding:22px;text-align:center}
+header h1{margin:0;font-size:24px}
+header p{margin:8px 0 0;color:#cbd5ef}
+nav{display:flex;flex-wrap:wrap;gap:7px;padding:12px;background:white;position:sticky;top:0;z-index:5}
+button{border:0;border-radius:8px;padding:11px 15px;background:#5369df;color:white;cursor:pointer}
+nav button{background:#edf0fa;color:#34415e}
+nav button.active{background:#5369df;color:white}
+main{max-width:1100px;margin:20px auto;padding:12px}
+.page{display:none}
+.page.active{display:block}
+.card{background:white;border-radius:13px;padding:20px;margin-bottom:15px;box-shadow:0 3px 12px #15264a0c}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.number{font-size:28px;font-weight:bold;color:#5369df;margin-top:8px}
+h2{font-size:20px;margin-top:0}
+input,textarea,select{width:100%;padding:12px;border:1px solid #dce1ec;border-radius:8px;margin:7px 0 13px;font-size:15px}
+textarea{min-height:110px;line-height:1.6}
+label{font-weight:bold;font-size:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row>*{flex:1;min-width:150px}
+.item{padding:13px 0;border-bottom:1px solid #edf0f5}
+.small{font-size:12px;color:#758096}
+.tag{display:inline-block;background:#edf0ff;color:#465ac0;padding:5px 9px;border-radius:15px;margin:3px;font-size:12px}
+a{color:#5369df}
+.action{margin:3px}
+.green{background:#15966c}
+.red{background:#d95757}
+.gray{background:#69758b}
+#thumb{width:100%;max-width:500px;border-radius:10px;display:block;margin:12px 0}
+@media(max-width:600px){header h1{font-size:20px}nav button{font-size:12px;padding:9px}main{padding:9px}}
+</style>
+</head>
+<body>
+
+<header>
+<h1>🌟 뉴스픽 황금유입 PRO</h1>
+<p>무료 블로그 콘텐츠 관리 프로그램</p>
+</header>
+
+<nav>
+<button class="active" onclick="show('dashboard',this)">📊 대시보드</button>
+<button onclick="show('news',this)">🔥 뉴스 관리</button>
+<button onclick="show('writer',this)">✍️ 글쓰기</button>
+<button onclick="show('posts',this)">📝 게시글</button>
+<button onclick="show('points',this)">💰 포인트</button>
+<button onclick="show('settings',this)">⚙️ 설정</button>
+</nav>
+
+<main>
+
+<section id="dashboard" class="page active">
+<div class="card">
+<h2>안녕하세요! 👋</h2>
+오늘의 블로그 운영 현황을 확인하세요.
+</div>
+<div class="cards">
+<div class="card">등록 뉴스<div class="number" id="newsCount">0</div></div>
+<div class="card">작성 게시글<div class="number" id="postCount">0</div></div>
+<div class="card">누적 클릭<div class="number" id="clickCount">0</div></div>
+<div class="card">누적 포인트<div class="number" id="pointCount">0</div></div>
+</div>
+<div class="card">
+<h2>📰 인기 뉴스 검색 바로가기</h2>
+<div id="quickSearch"></div>
+</div>
+<div class="card">
+<h2>📌 최근 작성 게시글</h2>
+<div id="recentPosts">아직 작성된 게시글이 없습니다.</div>
+</div>
+</section>
+
+<section id="news" class="page">
+<div class="card">
+<h2>🔥 뉴스 등록</h2>
+<label>뉴스 분야</label>
+<select id="category">
+<option>연예·방송</option><option>스포츠</option>
+<option>생활·건강</option><option>사회·경제</option>
+<option>자동차·IT</option><option>여행·맛집</option>
+<option>생활정보</option>
+</select>
+<label>기사 제목</label>
+<input id="newsTitle" placeholder="기사 제목을 입력하세요">
+<label>기사 핵심 내용</label>
+<textarea id="newsSummary" placeholder="기사 내용을 직접 확인하고 핵심 내용을 요약해 주세요."></textarea>
+<label>원문 주소</label>
+<input id="sourceUrl" placeholder="원문 기사 주소">
+<label>뉴스픽 파트너스 공유 링크</label>
+<input id="partnerUrl" placeholder="https://meet2.kr/...">
+<button onclick="addNews()">뉴스 등록하기</button>
+</div>
+<div class="card">
+<h2>📚 등록된 뉴스 목록</h2>
+<div id="newsList"></div>
+</div>
+</section>
+
+<section id="writer" class="page">
+<div class="card">
+<h2>✍️ 블로그 자동 작성</h2>
+<p class="small">등록한 뉴스의 제목과 요약을 이용해 블로그 초안을 구성합니다.</p>
+<label>작성할 뉴스 선택</label>
+<select id="selectNews" onchange="loadNews()">
+<option value="">직접 입력하기</option>
+</select>
+<label>분야</label>
+<input id="writeCategory" placeholder="뉴스 분야">
+<label>블로그 제목</label>
+<input id="writeTitle" placeholder="기사 제목">
+<label>기사 핵심 내용</label>
+<textarea id="writeSummary" placeholder="확인한 기사 내용을 입력하세요."></textarea>
+<label>원문 주소</label>
+<input id="writeSource" placeholder="원문 링크">
+<label>뉴스픽 공유 링크</label>
+<input id="writePartner" placeholder="파트너스 링크">
+<button onclick="makeTitles()">🎯 제목 5개 추천</button>
+<div id="titleResults"></div>
+<button onclick="makeDraft()">✨ 블로그 글 만들기</button>
+</div>
+
+<div class="card">
+<h2>📝 블로그 본문</h2>
+<textarea id="draft" style="min-height:380px" placeholder="여기에 생성된 블로그 글이 표시됩니다."></textarea>
+<button onclick="copyDraft()">📋 글 전체 복사</button>
+<button class="green" onclick="savePost()">💾 게시글 저장</button>
+<button class="gray" onclick="makeTags()"># 해시태그 만들기</button>
+<div id="tags"></div>
+</div>
+
+<div class="card">
+<h2>🖼️ 썸네일 만들기</h2>
+<input id="thumbTitle" placeholder="썸네일에 넣을 제목">
+<button onclick="makeThumb()">썸네일 미리보기</button>
+<canvas id="thumbCanvas" width="1200" height="675" style="width:100%;max-width:600px;display:none"></canvas>
+<br>
+<button class="green" onclick="downloadThumb()">이미지 저장</button>
+</div>
+</section>
+
+<section id="posts" class="page">
+<div class="card">
+<h2>📝 게시글 관리</h2>
+<p class="small">작성한 글을 관리하고 실제 방문자와 클릭 수를 기록하세요.</p>
+<div id="postList"></div>
+</div>
+</section>
+
+<section id="points" class="page">
+<div class="card">
+<h2>💰 포인트 관리</h2>
+<label>적립 또는 사용 내역</label>
+<input id="pointMemo" placeholder="예: 뉴스픽 포인트 적립">
+<label>포인트 금액</label>
+<input id="pointAmount" type="number" placeholder="예: 500">
+<button onclick="addPoint()">포인트 기록하기</button>
+</div>
+<div class="card">
+<h2>📈 포인트 내역</h2>
+<div id="pointList"></div>
+</div>
+</section>
+
+<section id="settings" class="page">
+<div class="card">
+<h2>⚙️ 프로그램 설정</h2>
+<p>현재 데이터는 사용 중인 브라우저에 저장됩니다.</p>
+<button onclick="exportData()">📥 데이터 백업하기</button>
+<br><br>
+<label>백업 파일 복원</label>
+<input type="file" id="importFile" accept=".json">
+<button onclick="importData()">백업 복원하기</button>
+<br><br>
+<button class="red" onclick="clearData()">전체 데이터 삭제</button>
+</div>
+<div class="card">
+<h2>무료 버전 안내</h2>
+<p>이 프로그램은 외부 AI API 없이 작동합니다.</p>
+<p>실제 기사 수집, AI 분석, 뉴스픽 포인트 조회는 자동 연동되지 않습니다.</p>
+<p>뉴스는 원문을 확인한 뒤 직접 등록하고, 포인트는 실제 내역을 확인해 입력하세요.</p>
+</div>
+</section>
+
+</main>
+
+<script>
+const KEY='newspic_golden_v1';
+let data=JSON.parse(localStorage.getItem(KEY)||'{"news":[],"posts":[],"points":[]}');
+
+function save(){
+localStorage.setItem(KEY,JSON.stringify(data));
+render();
+}
+
+function show(id,btn){
+document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+btn.classList.add('active');
+render();
+}
+
+function esc(s){
+return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function addNews(){
+let title=newsTitle.value.trim();
+if(!title)return alert('기사 제목을 입력하세요.');
+data.news.unshift({
+id:Date.now(),category:category.value,title,
+summary:newsSummary.value,source:sourceUrl.value,
+partner:partnerUrl.value,date:new Date().toLocaleDateString()
+});
+newsTitle.value='';newsSummary.value='';
+sourceUrl.value='';partnerUrl.value='';
+save();alert('뉴스가 등록되었습니다.');
+}
+
+function loadNews(){
+let n=data.news.find(x=>x.id==selectNews.value);
+if(!n)return;
+writeCategory.value=n.category;
+writeTitle.value=n.title;
+writeSummary.value=n.summary;
+writeSource.value=n.source;
+writePartner.value=n.partner;
+}
+
+function makeTitles(){
+let t=writeTitle.value.trim();
+if(!t)return alert('기사 제목을 입력하세요.');
+let arr=[
+t,
+'최근 화제가 된 '+t+' 핵심 내용 정리',
+'사람들이 주목하는 '+t+' 자세히 알아보기',
+'놓치면 아쉬운 '+t+' 관련 정보',
+t+'에 대해 알아야 할 주요 내용'
+];
+titleResults.innerHTML='<h3>추천 제목</h3>'+arr.map(x=>`<div class="item">${esc(x)} <button class="action" onclick="useTitle(this)">선택</button></div>`).join('');
+}
+
+function useTitle(btn){
+writeTitle.value=btn.parentElement.firstChild.textContent.trim();
+}
+
+function makeDraft(){
+let title=writeTitle.value.trim();
+let summary=writeSummary.value.trim();
+if(!title||!summary)return alert('제목과 핵심 내용을 입력하세요.');
+let source=writeSource.value.trim();
+let partner=writePartner.value.trim();
+let cat=writeCategory.value||'생활정보';
+draft.value=
+`${title}
+
+안녕하세요. 오늘은 ${cat} 분야의 소식을 정리해 보겠습니다.
+
+■ 오늘의 핵심 소식
+
+${summary}
+
+■ 주요 내용 정리
+
+위 내용을 바탕으로 관련 사실과 배경을 확인해 보세요.
+기사에서 확인된 내용과 개인적인 의견은 구분해서 작성하는 것이 좋습니다.
+
+■ 함께 생각해 볼 점
+
+이번 소식에서 주목할 부분은 무엇일까요?
+독자 여러분은 어떻게 생각하시나요?
+
+■ 참고 자료
+
+원문 기사:
+${source||'원문 주소를 입력해 주세요.'}
+
+※ 본문은 제공된 요약을 바탕으로 구성한 초안입니다. 게시 전 원문과 사실관계를 확인하고 직접 의견을 추가해 주세요.
+
+${partner?'파트너스 링크: '+partner:''}
+
+#${cat.replace(/[·\s]/g,'')} #오늘의소식 #뉴스정리`;
+thumbTitle.value=title;
+makeTags();
+}
+
+function copyDraft(){
+draft.select();document.execCommand('copy');
+alert('본문을 복사했습니다.');
+}
+
+function makeTags(){
+let cat=writeCategory.value||'생활정보';
+let words=writeTitle.value.match(/[가-힣A-Za-z0-9]{2,}/g)||[];
+let tags=[cat,'오늘의소식','뉴스정보','이슈정리',...words.slice(0,6)];
+tags=[...new Set(tags)].slice(0,10);
+document.getElementById('tags').innerHTML=tags.map(t=>`<span class="tag">#${esc(t.replace(/\s/g,''))}</span>`).join('');
+}
+
+function savePost(){
+if(!draft.value.trim())return alert('먼저 글을 작성하세요.');
+data.posts.unshift({
+id:Date.now(),title:writeTitle.value,
+category:writeCategory.value,content:draft.value,
+date:new Date().toLocaleString(),status:'작성 완료',clicks:0,views:0
+});
+save();alert('게시글이 저장되었습니다.');
+}
+
+function makeThumb(){
+let c=thumbCanvas,ctx=c.getContext('2d');
+let title=thumbTitle.value||'오늘의 주요 소식';
+ctx.fillStyle='#222d50';ctx.fillRect(0,0,1200,675);
+ctx.fillStyle='#6579ed';ctx.fillRect(0,0,18,675);
+ctx.fillStyle='#fff';ctx.font='bold 38px sans-serif';
+ctx.fillText('NEWS PICK BLOG',75,100);
+ctx.font='bold 65px sans-serif';
+let words=title.split('');let lines=[];
+for(let i=0;i<words.length;i+=13)lines.push(words.slice(i,i+13).join(''));
+lines.slice(0,4).forEach((l,i)=>ctx.fillText(l,75,260+i*100));
+ctx.font='30px sans-serif';ctx.fillStyle='#cbd4ff';
+ctx.fillText('뉴스픽 황금유입 PRO',75,600);
+c.style.display='block';
+}
+
+function downloadThumb(){
+if(thumbCanvas.style.display==='none')return alert('먼저 썸네일을 만들어 주세요.');
+let a=document.createElement('a');
+a.download='newspic-thumbnail.png';
+a.href=thumbCanvas.toDataURL('image/png');a.click();
+}
+
+function addPoint(){
+let amount=Number(pointAmount.value);
+if(!amount)return alert('금액을 입력하세요.');
+data.points.unshift({memo:pointMemo.value||'포인트 기록',amount,date:new Date().toLocaleString()});
+pointMemo.value='';pointAmount.value='';
+save();
+}
+
+function exportData(){
+let a=document.createElement('a');
+a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+a.download='newspic-backup.json';a.click();
+URL.revokeObjectURL(a.href);
+}
+
+function importData(){
+let f=importFile.files[0];if(!f)return alert('백업 파일을 선택하세요.');
+let r=new FileReader();
+r.onload=()=>{try{data=JSON.parse(r.result);save();alert('복원 완료');}catch(e){alert('올바른 백업 파일이 아닙니다.');}};
+r.readAsText(f);
+}
+
+function clearData(){
+if(confirm('저장된 모든 데이터를 삭제할까요?')){
+localStorage.removeItem(KEY);
+data={news:[],posts:[],points:[]};render();
+}
+}
+
+const topics=[
+['연예·방송','연예 최신 뉴스'],['연예·방송','방송 화제의 인물'],
+['연예·방송','연예계 최신 이슈'],['연예·방송','드라마 예능 소식'],
+['스포츠','오늘의 스포츠 뉴스'],['스포츠','축구 최신 소식'],
+['스포츠','야구 최신 소식'],
+['생활·건강','건강 생활 정보'],['생활·건강','건강 관리 최신 정보'],
+['생활·건강','음식 영양 정보'],
+['사회·경제','오늘의 경제 뉴스'],['사회·경제','생활 경제 이슈'],
+['사회·경제','사회 주요 뉴스'],
+['자동차·IT','자동차 최신 뉴스'],['자동차·IT','IT 기술 최신 소식'],
+['여행·맛집','국내 여행 추천'],['여행·맛집','맛집 최신 정보'],
+['생활정보','생활 꿀팁'],['생활정보','정부 지원 정책 정보'],
+['생활정보','소비자 생활 정보']
+];
+
+function render(){
+newsCount.textContent=data.news.length;
+postCount.textContent=data.posts.length;
+clickCount.textContent=data.posts.reduce((s,p)=>s+(p.clicks||0),0);
+pointCount.textContent=data.points.reduce((s,p)=>s+p.amount,0).toLocaleString();
+newsList.innerHTML=data.news.map(n=>`
+<div class="item"><b>${esc(n.title)}</b>
+<div class="small">${esc(n.category)} · ${esc(n.date)}</div>
+<button class="action" onclick="useNews(${n.id})">글쓰기</button>
+<button class="red action" onclick="deleteNews(${n.id})">삭제</button></div>`).join('')||'등록된 뉴스가 없습니다.';
+selectNews.innerHTML='<option value="">직접 입력하기</option>'+data.news.map(n=>`<option value="${n.id}">${esc(n.title)}</option>`).join('');
+postList.innerHTML=data.posts.map(p=>`
+<div class="item"><b>${esc(p.title)}</b>
+<div class="small">${esc(p.date)} · ${esc
